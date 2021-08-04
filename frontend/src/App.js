@@ -1,23 +1,31 @@
-import logo from './logo.svg';
+import ROSLIB from 'roslib';
 import './App.css';
 
 function App() {
+
+  let IP = "192.168.43.248";
+  let PORT = 9090;
+
+
+  var ros = new ROSLIB.Ros({
+    url : `ws://${IP}:${PORT}`
+  });
+
+  ros.on('connection', function() {
+    console.log('Connected to ROS websocket server.');
+  });
+
+  ros.on('error', function(error) {
+    console.log('Error connecting to websocket server: ', error);
+  });
+
+  ros.on('close', function() {
+    console.log('Connection to websocket server closed.');
+  });
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+
     </div>
   );
 }
