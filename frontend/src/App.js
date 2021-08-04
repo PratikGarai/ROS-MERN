@@ -1,11 +1,15 @@
 import { useRef } from 'react';
 import ROSLIB from 'roslib';
 import './App.css';
+import InputComponent from './components/InputComponent';
 
 function App() {
 
   let IP = "192.168.43.248";
   let PORT = 9090;
+  const messageReceived = useRef("");
+
+  // ROS setup
 
   var ros = new ROSLIB.Ros({
     url : `ws://${IP}:${PORT}`
@@ -23,43 +27,52 @@ function App() {
     console.log('Connection to websocket server closed.');
   });
 
-  var talker = new ROSLIB.Topic({
+  // Topis setup
+
+  var chatter = new ROSLIB.Topic({
     ros : ros,
     name : '/chatter',
     messageType : 'std_msgs/String'
   });
 
-  const message = useRef("");
+  // Sender [ React -> ROS ]
 
-  const onClick = () => {
-    console.log(message.current.value);
+  const sendMessage = (message) => {
     const messageObj = new ROSLIB.Message({
-      data : message.current.value.toString()
+      data : message
     });
 
-    talker.publish(messageObj);
+    chatter.publish(messageObj);
   }
+
+  // Receiver [ ROS -> React ]
+
+  chatter.subscribe(function(message) {
+    console.log("Receiver : ", message.data);
+  });
 
   return (
     <div className="App">
+        <InputComponent sendMessage={sendMessage} />
+        <br />
+        <hr />
         <div style={{
-          display : "flex",
+          display : "flex", 
+          padding : "20px",
           flexDirection : "column",
           alignItems : "center",
           justifyContent : "center"
         }}>
-          <h2>Send messages here </h2>
+          <h2>Listener</h2>
           <div>
-            <input type="text" ref={message} placeholder="Message..."/>
-          </div>
-          <div style={{
-            marginTop : "10px"
-          }}>
-            <button onClick={onClick}>Send Message</button>
+            <textarea 
+              contentEditable={false}
+              rows = {10}
+              cols = {60}
+              ref = {messageReceived}
+            ></textarea>
           </div>
         </div>
-        <br />
-        <hr />
     </div>
   );
 }
