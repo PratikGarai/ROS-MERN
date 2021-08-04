@@ -1,8 +1,18 @@
 import { useState } from "react"
+import ROSLIB from "roslib";
 
-const InputComponent = ({sendMessage}) => {
+const InputComponent = ({topic}) => {
 
     const [message, setMessage] = useState("");
+
+    // Sender [ React -> ROS ]
+
+    const sendMessage = (message) => {
+        const messageObj = new ROSLIB.Message({
+        data : message
+        });
+        topic.publish(messageObj);
+    }
 
     const onChange = (e) => {
         setMessage(e.target.value);

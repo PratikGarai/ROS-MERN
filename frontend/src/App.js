@@ -1,13 +1,12 @@
-import { useRef } from 'react';
 import ROSLIB from 'roslib';
 import './App.css';
 import InputComponent from './components/InputComponent';
+import OutputComponent from './components/OutputComponent';
 
 function App() {
 
   let IP = "192.168.43.248";
   let PORT = 9090;
-  const messageReceived = useRef("");
 
   // ROS setup
 
@@ -27,52 +26,20 @@ function App() {
     console.log('Connection to websocket server closed.');
   });
 
-  // Topis setup
-
+  // Topic setup
+  
   var chatter = new ROSLIB.Topic({
     ros : ros,
     name : '/chatter',
     messageType : 'std_msgs/String'
   });
 
-  // Sender [ React -> ROS ]
-
-  const sendMessage = (message) => {
-    const messageObj = new ROSLIB.Message({
-      data : message
-    });
-
-    chatter.publish(messageObj);
-  }
-
-  // Receiver [ ROS -> React ]
-
-  chatter.subscribe(function(message) {
-    console.log("Receiver : ", message.data);
-  });
-
   return (
     <div className="App">
-        <InputComponent sendMessage={sendMessage} />
+        <InputComponent topic={chatter} />
         <br />
         <hr />
-        <div style={{
-          display : "flex", 
-          padding : "20px",
-          flexDirection : "column",
-          alignItems : "center",
-          justifyContent : "center"
-        }}>
-          <h2>Listener</h2>
-          <div>
-            <textarea 
-              contentEditable={false}
-              rows = {10}
-              cols = {60}
-              ref = {messageReceived}
-            ></textarea>
-          </div>
-        </div>
+        <OutputComponent topic={chatter} />
     </div>
   );
 }
