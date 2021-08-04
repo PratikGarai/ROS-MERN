@@ -1,13 +1,14 @@
-import { useState } from "react"
+import { useRef } from "react"
 
 const OutputComponent = ({topic}) => {
 
-    const [data, setData] = useState("");
+    const ref = useRef("");
 
     // Receiver [ ROS -> React ]
 
     topic.subscribe(function(message) {
-        setData(data+"\n"+message.data);
+	if(ref.current!=="")
+	    ref.current.value += "\n"+message.data;
     });
 
     return (
@@ -24,7 +25,7 @@ const OutputComponent = ({topic}) => {
                 contentEditable={false}
                 rows = {10}
                 cols = {60}
-                value = {data}
+	    	ref = {ref}
               ></textarea>
             </div>
         </div>
